@@ -85,4 +85,59 @@ public class WarehouseService {
 
         product.addMovement(stockMovement);
     }
+
+    public void ship (Integer id, Integer amount) {
+        Product product = findProductById(id);
+
+        product.ship(amount);
+
+        StockMovement stockMovement = new StockMovement(
+                MovementType.SHIP,
+                amount,
+                product.getId(),
+                null,
+                "shipped",
+                product.getAmount()
+        );
+
+        product.addMovement(stockMovement);
+    }
+
+    public void transfer(Integer source, Integer goal, Integer amount) {
+        Product sourceProduct = findProductById(source);
+        Product goalProduct = findProductById(goal);
+
+        sourceProduct.ship(amount);
+        StockMovement transferOut = new StockMovement(
+                MovementType.TRANSFER_OUT,
+                amount,
+                source,
+                goal,
+                "Transfer out",
+                sourceProduct.getAmount()
+        );
+        sourceProduct.addMovement(transferOut);
+
+        goalProduct.receive(amount);
+        StockMovement transferIn = new StockMovement(
+                MovementType.TRANSFER_IN,
+                amount,
+                source,
+                goal,
+                "Transfer in",
+                goalProduct.getAmount()
+        );
+        goalProduct.addMovement(transferIn);
+
+        sourceProduct.ship(amount * 5 / 100);
+        StockMovement loss = new StockMovement(
+                MovementType.LOSS,
+                amount * 5 / 100,
+                source,
+                goal,
+                "loss",
+                sourceProduct.getAmount()
+        );
+        sourceProduct.addMovement(loss);
+    }
 }
