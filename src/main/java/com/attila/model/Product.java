@@ -46,6 +46,33 @@ public class Product {
         this.amount = amount;
     }
 
+    public void addMovement(StockMovement stockMovement) {
+        stockMovements.add(stockMovement);
+    }
+
+    public void receive(Integer amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount cannot be 0 or negative");
+        }
+        this.amount += amount;
+    }
+
+    public Boolean isShippable(Integer amount) {
+        return amount <= this.amount;
+    }
+
+    public void ship(Integer amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount cannot be positive");
+        }
+
+        if (isShippable(amount)) {
+            this.amount -= amount;
+        } else {
+            throw new IllegalArgumentException("We don't have enough stocks");
+        }
+    }
+
     @Override
     public String toString() {
         return "Product{" +

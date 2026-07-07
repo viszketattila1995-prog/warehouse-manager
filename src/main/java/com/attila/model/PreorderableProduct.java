@@ -16,4 +16,9 @@ public class PreorderableProduct extends Product{
     public void setOverdraftLimit(Integer overdraftLimit) {
         this.overdraftLimit = overdraftLimit;
     }
+
+    @Override
+    public Boolean isShippable(Integer amount) {
+        return getAmount() - amount >= -overdraftLimit;
+    }
 }
