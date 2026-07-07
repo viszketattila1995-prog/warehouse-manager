@@ -1,5 +1,7 @@
 package com.attila.model;
 
+import com.attila.exception.NegativeNumberException;
+import com.attila.exception.NotEnoughStockException;
 import com.attila.transaction.StockMovement;
 
 import java.util.ArrayList;
@@ -8,11 +10,11 @@ import java.util.List;
 
 public class Product {
 
-    private Integer id;
+    private final Integer id;
 
-    private Supplier supplier;
+    private final Supplier supplier;
 
-    private List<StockMovement> stockMovements;
+    private final List<StockMovement> stockMovements;
 
     private Integer amount;
 
@@ -21,9 +23,6 @@ public class Product {
         this.supplier = supplier;
         this.amount = amount;
         this.stockMovements = new ArrayList<>();
-    }
-
-    public Product() {
     }
 
     public Integer getId() {
@@ -52,7 +51,7 @@ public class Product {
 
     public void receive(Integer amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("Amount cannot be 0 or negative");
+            throw new NegativeNumberException("Amount cannot be 0 or negative");
         }
         this.amount += amount;
     }
@@ -63,13 +62,13 @@ public class Product {
 
     public void ship(Integer amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("Amount cannot be positive");
+            throw new NegativeNumberException("Amount cannot be negative or null");
         }
 
         if (isShippable(amount)) {
             this.amount -= amount;
         } else {
-            throw new IllegalArgumentException("We don't have enough stocks");
+            throw new NotEnoughStockException("We don't have enough stocks");
         }
     }
 

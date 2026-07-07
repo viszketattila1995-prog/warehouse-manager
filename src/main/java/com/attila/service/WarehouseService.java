@@ -1,5 +1,6 @@
 package com.attila.service;
 
+import com.attila.exception.*;
 import com.attila.model.PerishableProduct;
 import com.attila.model.PreorderableProduct;
 import com.attila.model.Product;
@@ -38,14 +39,14 @@ public class WarehouseService {
         return supplierList.stream()
                 .filter(s -> s.getName().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No supplier found with name: " + name));
+                .orElseThrow(() -> new NoSupplierWithNameException("No supplier found with name: " + name));
     }
 
     public Product findProductById(Integer id) {
         return productList.stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("This product doesn't exists"));
+                .orElseThrow(() -> new ProductNotExsistsException("This product doesn't exists"));
     }
 
     public Boolean existsById(Integer id) {
@@ -58,14 +59,14 @@ public class WarehouseService {
         Integer amount = 0;
 
         if (existsById(id)){
-            throw new IllegalArgumentException("This product already exists with id: " + id);
+            throw new ProductAlreadyExistsException("This product already exists with id: " + id);
         }
 
         switch (type){
             case "perishable" -> productList.add(new PerishableProduct(id, supplier, amount, extra));
             case "preorderable" -> productList.add(new PreorderableProduct(id, supplier, amount, extra));
             case "normal" -> productList.add(new Product(id, supplier, amount));
-            default -> throw new IllegalArgumentException("No such type to be found");
+            default -> throw new TypeNotFoundException("No such type to be found");
         }
     }
 
@@ -104,13 +105,17 @@ public class WarehouseService {
     }
 
     public void transfer(Integer source, Integer goal, Integer amount) {
+        if (source.equals(goal)) {
+            throw new SameProductTransferException("Source and goal cannot be the same");
+        }
+
         Product sourceProduct = findProductById(source);
         Product goalProduct = findProductById(goal);
 
         Integer lossInPercent = amount * 5 / 100;
 
         if (!sourceProduct.isShippable(amount + lossInPercent)){
-            throw new IllegalArgumentException("The amount exceeded the available quantity");
+            throw new StockExceededException("The amount exceeded the available quantity");
         }
 
         sourceProduct.ship(amount);

@@ -1,6 +1,7 @@
 package com.attila.transaction;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class StockMovement {
 
@@ -97,4 +98,15 @@ public class StockMovement {
         return id;
     }
 
+    @Override
+    public String toString() {
+        String time = timeStamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String route = switch (movementType) {
+            case RECEIVE -> "→ #" + goal;
+            case SHIP -> "#" + source + " →";
+            case TRANSFER_OUT, TRANSFER_IN, LOSS -> "#" + source + " → #" + goal;
+        };
+        return String.format("[%s] #%d  %-12s %5d db  %s   (stock: %d)",
+                time, id, movementType, amount, route, stocksAfterTheMove);
+    }
 }
