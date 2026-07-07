@@ -107,6 +107,12 @@ public class WarehouseService {
         Product sourceProduct = findProductById(source);
         Product goalProduct = findProductById(goal);
 
+        Integer lossInPercent = amount * 5 / 100;
+
+        if (!sourceProduct.isShippable(amount + lossInPercent)){
+            throw new IllegalArgumentException("The amount exceeded the available quantity");
+        }
+
         sourceProduct.ship(amount);
         StockMovement transferOut = new StockMovement(
                 MovementType.TRANSFER_OUT,
@@ -129,15 +135,23 @@ public class WarehouseService {
         );
         goalProduct.addMovement(transferIn);
 
-        sourceProduct.ship(amount * 5 / 100);
-        StockMovement loss = new StockMovement(
-                MovementType.LOSS,
-                amount * 5 / 100,
-                source,
-                goal,
-                "loss",
-                sourceProduct.getAmount()
-        );
-        sourceProduct.addMovement(loss);
+        if (lossInPercent > 0) {
+            sourceProduct.ship(lossInPercent);
+            StockMovement loss = new StockMovement(
+                    MovementType.LOSS,
+                    lossInPercent,
+                    source,
+                    goal,
+                    "loss",
+                    sourceProduct.getAmount()
+            );
+            sourceProduct.addMovement(loss);
+        }
+    }
+
+    public List<StockMovement> getStockMovementHistory(Integer id) {
+        Product product = findProductById(id);
+
+        return product.getStockMovements();
     }
 }
