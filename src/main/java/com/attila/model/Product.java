@@ -68,7 +68,7 @@ public class Product {
         if (isShippable(amount)) {
             this.amount -= amount;
         } else {
-            throw new NotEnoughStockException("We don't have enough stocks");
+            throw new NotEnoughStockException("Not enough have enough stocks");
         }
     }
 
